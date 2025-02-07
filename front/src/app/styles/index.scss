@@ -1,0 +1,15 @@
+@import './normalize.scss';
+@import './vars';
+@import './media-queries';
+
+body {
+    color: $color-black;
+}
+
+button {
+    cursor: pointer;
+}
+
+.App {
+    height: 100vh;
+}
