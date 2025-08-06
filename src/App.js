@@ -1,23 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import './App.scss';
+import { Routes, Route } from 'react-router-dom';
+import { Home } from './pages/homePage/Home'
+import { Admin } from './pages/adminPage/Admin';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {/* <Header navMenu={ navMenu } /> */}
+
+      <Routes>
+        <Route path='/' element={ <Home /> }></Route>
+        <Route path='/admin' element={ <Admin /> }></Route>
+        {/* <Route path='/news' element={ <AllNews /> }></Route>
+        <Route path='/about-us' element={ <AboutUs /> }></Route>
+        <Route path='/corporatization' element={ <Corporatization /> }></Route>
+        <Route path='/contacts' element={ <Contacts /> }></Route>
+        <Route path='/post/:id' element={ <SingleNews /> }></Route>
+        <Route path='/tag/:tag' element={ <NewsByTag /> }></Route>
+        <Route path='/category/:category' element={ <NewsByCategory /> }></Route> */}
+      </Routes>
+
+      {/* <Footer navMenu={ navMenu } /> */}
     </div>
   );
 }
