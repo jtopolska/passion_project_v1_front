@@ -2,11 +2,11 @@
 import { useState, useEffect } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addPost, fetchMeta } from '../../app/redux/slices/slices';
+import { addPost, fetchMeta, fetchPosts, updatePost, deletePostById } from '../../app/redux/slices/slices';
 
 export const Admin = () => {
   const dispatch = useDispatch();
-  const { categories, tags, authors } = useSelector(state => state.meta);
+  const { categories, tags, authors, posts } = useSelector(state => state.meta);
 
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
@@ -16,15 +16,30 @@ export const Admin = () => {
   const [author, setAuthor] = useState('');
   const [newAuthor, setNewAuthor] = useState('');
   const [publishDate, setPublishDate] = useState('');
+  const [selectedPost, setSelectedPost] = useState(null);
+
 
   useEffect(() => {
     dispatch(fetchMeta());
+    dispatch(fetchPosts());
   }, [dispatch]);
 
   const handleEditorChange = (content, editor) => {
          setContent(content);
          console.log('content2', content)
-    };
+  };
+
+  const handleSelectPost = (post) => {
+    setSelectedPost(post);
+    setContent(post.content);
+    setCategory(post.category || '');
+    setNewCategory('');
+    setSelectedTags(post.tags || []);
+    setNewTag('');
+    setAuthor(post.author || '');
+    setNewAuthor('');
+    setPublishDate(post.publishDate ? post.publishDate.slice(0, 10) : '');
+  };
 
   const handleSubmit = () => {
     const postData = {
@@ -34,7 +49,27 @@ export const Admin = () => {
       author: newAuthor || author,
       publishDate
     };
-    dispatch(addPost(postData));
+    
+    if (selectedPost) {
+      // Обновление поста
+      dispatch(updatePost({ id: selectedPost._id, data: postData }));
+    } else {
+      // Создание нового поста
+      dispatch(addPost(postData));
+    }
+
+    setContent('');
+    setCategory('');
+    setNewCategory('');
+    setSelectedTags([]);
+    setNewTag('');
+    setAuthor('');
+    setNewAuthor('');
+    setPublishDate('');
+  };
+
+  const handleDelete = async (id) => {
+      await dispatch(deletePostById(id));
   };
 
   return (
@@ -46,18 +81,36 @@ export const Admin = () => {
             apiKey='13nbiowfc83axeo3k7q1rt352i92l3kqc0hvdivpeo8g5ob9'
             init={{
                 plugins: [
-                'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount'
+                'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount'
                 ],
-                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
                 tinycomments_mode: 'embedded',
                 tinycomments_author: 'Author name',
                 mergetags_list: [
                 { value: 'First.Name', title: 'First Name' },
                 { value: 'Email', title: 'Email' },
                 ],
-                ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+                automatic_uploads: true,
+                file_picker_types: 'image',
+                images_upload_url: 'http://localhost:7000/uploads/images',
                 uploadcare_public_key: '9f308ee449f5f650cf07',
-            }}
+                images_upload_handler: async (blobInfo, progress) => {
+                  const formData = new FormData();
+                  formData.append('image', blobInfo.blob(), blobInfo.filename());
+
+                  const res = await fetch('http://localhost:7000/uploads/images', {
+                    method: 'POST',
+                    body: formData,
+                  });
+                  console.log('res 1', res)
+
+                  if (!res.ok) throw new Error('Upload failed');
+                  const data = await res.json();
+                  // TinyMCE ожидает { location: 'https://…/file.jpg' }
+                  return data.location;
+                }
+              }
+            }
             initialValue="Welcome to TinyMCE!"
             value={ content }
             onEditorChange={ handleEditorChange }
@@ -88,6 +141,31 @@ export const Admin = () => {
       <input type="date" value={publishDate} onChange={e => setPublishDate(e.target.value)} />
 
       <button onClick={handleSubmit}>Опубликовать</button>
+      {selectedPost && (
+        <button onClick={() => setSelectedPost(null)}>Очистить форму</button>
+      )}
+
+      <p>Posts</p>
+        {posts.length > 0 && posts.map(item => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(item.content, 'text/html');
+          const headings = doc.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+
+          return (
+            <div key={ item._id }>
+              {Array.from(headings).map((heading, index) => (
+                <div key={ index }>
+                  <div>{ heading.textContent }</div>
+                  <button onClick={ () => handleSelectPost(item) }>Редактировать</button>
+                  <button onClick={ () => handleDelete(item._id) }>
+                    🗑️ Удалить
+                  </button>
+                </div>
+              ))})}
+            </div>
+          );
+        })}
     </div>
   );
 };

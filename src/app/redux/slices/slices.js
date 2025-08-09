@@ -14,14 +14,31 @@ export const fetchMeta = createAsyncThunk('/fetchMeta', async () => {
   };
 });
 
-export const addPost = createAsyncThunk('/addPost', async (postData) => {
-  const { data } = await axios.post('/admin/post', postData);
-  return data;
-});
-
 export const fetchPosts = createAsyncThunk('posts/fetchAll', async () => {
   const { data } = await axios.get('/posts');
   return data;
+});
+
+export const addPost = createAsyncThunk('/addPost', async (postData) => {
+  const { data } = await axios.post('/post', postData);
+  return data;
+});
+
+export const updatePost = createAsyncThunk('/updatePost', async ({ id, data }) => {
+  const response = await axios.put(`/post/${id}`, data);
+  return response.data;
+});
+
+// Получение одного поста
+export const fetchPostById = createAsyncThunk('/fetchPostById', async (id) => {
+  const { data } = await axios.get(`/post/${id}`);
+  return data;
+});
+
+// Удаление поста
+export const deletePostById = createAsyncThunk('/deletePostById', async (id) => {
+  await axios.delete(`/post/${id}`);
+  return id; // возвращаем ID удалённого поста
 });
 
 const metaSlice = createSlice({
@@ -41,6 +58,19 @@ const metaSlice = createSlice({
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
         state.posts = action.payload;
+      })
+      .addCase(updatePost.fulfilled, (state, action) => {
+        const updated = action.payload;
+        const index = state.posts.findIndex(post => post._id === updated._id);
+        if (index !== -1) {
+          state.posts[index] = updated;
+        }
+      })
+      .addCase(fetchPostById.fulfilled, (state, action) => {
+        state.selectedPost = action.payload;
+      })
+      .addCase(deletePostById.fulfilled, (state, action) => {
+        state.posts = state.posts.filter(post => post._id !== action.payload);
       });
   }
 });

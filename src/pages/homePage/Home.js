@@ -1,9 +1,24 @@
-
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPosts } from '../../app/redux/slices/slices';
 
 export const Home = () => {
+    const dispatch = useDispatch();
+    const posts = useSelector(state => state.meta.posts);
+    console.log('posts', posts)
+    console.log('posts[0]', posts[0])
+
+
+    useEffect(() => {
+        dispatch(fetchPosts());
+      }, [dispatch]);
+
+
     return (
         <div>
-            
+            {posts.length > 0 && (
+                <div dangerouslySetInnerHTML={{ __html: posts[0].content }} />
+            )}
         </div>
     );
 }
