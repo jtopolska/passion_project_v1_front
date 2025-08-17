@@ -2,11 +2,11 @@
 import { useState, useEffect } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addPost, fetchMeta, fetchPosts, updatePost, deletePostById } from '../../app/redux/slices/slices';
+import { addPost, fetchMeta, fetchPosts, updatePost, deletePostById } from '../../app/redux/slices/postSlice';
 
 export const Admin = () => {
   const dispatch = useDispatch();
-  const { categories, tags, authors, posts } = useSelector(state => state.meta);
+  const { categories, tags, authors, posts } = useSelector(state => state.post);
 
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');

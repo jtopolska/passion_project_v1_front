@@ -1,10 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
-import metaReducer from './slices/slices';
+import metaReducer from './slices/postSlice';
+import commentReducer from './slices/commentSlice';
+import authReducer from './slices/authSlice';
 // import logger from 'redux-logger';
 
 export const store = configureStore({
   reducer: {
-    meta: metaReducer
+    post: metaReducer,
+    comments: commentReducer,
+    auth: authReducer
   }
   // ,
   // middleware: getDefaultMiddleware => getDefaultMiddleware().concat(logger)

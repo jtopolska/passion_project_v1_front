@@ -42,12 +42,14 @@ export const deletePostById = createAsyncThunk('/deletePostById', async (id) => 
 });
 
 const metaSlice = createSlice({
-  name: 'meta',
+  name: 'post',
   initialState: {
     categories: [],
     tags: [],
     authors: [],
-    posts: []
+    selectedPost: null,
+    posts: [],
+    loading: false
   },
   extraReducers: builder => {
     builder
@@ -66,12 +68,16 @@ const metaSlice = createSlice({
           state.posts[index] = updated;
         }
       })
-      .addCase(fetchPostById.fulfilled, (state, action) => {
-        state.selectedPost = action.payload;
-      })
       .addCase(deletePostById.fulfilled, (state, action) => {
         state.posts = state.posts.filter(post => post._id !== action.payload);
-      });
+      })
+      .addCase(fetchPostById.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchPostById.fulfilled, (state, action) => {
+        state.selectedPost = action.payload;
+        state.loading = false;
+    });
   }
 });
 
