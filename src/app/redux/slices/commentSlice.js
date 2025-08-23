@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../axios/axios';
 
 // Получить комментарии по посту
-export const fetchCommentsByPost = createAsyncThunk('comments/fetchByPost', async (postId) => {
+export const getCommentsByPost = createAsyncThunk('comments/fetchByPost', async (postId) => {
   const { data } = await axios.get(`/post/${postId}/comments`);
   return data;
 });
@@ -34,10 +34,10 @@ const commentSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchCommentsByPost.pending, state => {
+      .addCase(getCommentsByPost.pending, state => {
         state.loading = true;
       })
-      .addCase(fetchCommentsByPost.fulfilled, (state, action) => {
+      .addCase(getCommentsByPost.fulfilled, (state, action) => {
         state.items = action.payload;
         state.loading = false;
       })

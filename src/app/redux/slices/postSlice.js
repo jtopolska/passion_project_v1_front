@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../axios/axios';
 
-export const fetchMeta = createAsyncThunk('/fetchMeta', async () => {
+export const getMeta = createAsyncThunk('/getMeta', async () => {
   const [categories, tags, authors] = await Promise.all([
     axios.get('/categories'),
     axios.get('/tags'),
@@ -14,8 +14,9 @@ export const fetchMeta = createAsyncThunk('/fetchMeta', async () => {
   };
 });
 
-export const fetchPosts = createAsyncThunk('posts/fetchAll', async () => {
+export const getAllPosts = createAsyncThunk('posts/getAllPosts', async () => {
   const { data } = await axios.get('/posts');
+  console.log('data getAllPosts', data)
   return data;
 });
 
@@ -30,8 +31,12 @@ export const updatePost = createAsyncThunk('/updatePost', async ({ id, data }) =
 });
 
 // Получение одного поста
-export const fetchPostById = createAsyncThunk('/fetchPostById', async (id) => {
+export const getPostById = createAsyncThunk('/getPostById', async (id) => {
+  console.log('id post', id)
   const { data } = await axios.get(`/post/${id}`);
+    console.log('data getPostById', data)
+
+
   return data;
 });
 
@@ -39,6 +44,14 @@ export const fetchPostById = createAsyncThunk('/fetchPostById', async (id) => {
 export const deletePostById = createAsyncThunk('/deletePostById', async (id) => {
   await axios.delete(`/post/${id}`);
   return id; // возвращаем ID удалённого поста
+});
+
+export const reactToPost = createAsyncThunk('/reactToPost', async ({ postId, type }) => {
+  console.log('postId', postId)
+  console.log('type', type)
+  const { data } = await axios.post(`/post/${postId}/react`, { type });
+  console.log('data react', data)
+  return { data };
 });
 
 const metaSlice = createSlice({
@@ -53,12 +66,13 @@ const metaSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchMeta.fulfilled, (state, action) => {
+      .addCase(getMeta.fulfilled, (state, action) => {
         state.categories = action.payload.categories;
         state.tags = action.payload.tags;
         state.authors = action.payload.authors;
       })
-      .addCase(fetchPosts.fulfilled, (state, action) => {
+      .addCase(getAllPosts.fulfilled, (state, action) => {
+
         state.posts = action.payload;
       })
       .addCase(updatePost.fulfilled, (state, action) => {
@@ -71,13 +85,27 @@ const metaSlice = createSlice({
       .addCase(deletePostById.fulfilled, (state, action) => {
         state.posts = state.posts.filter(post => post._id !== action.payload);
       })
-      .addCase(fetchPostById.pending, (state) => {
+      .addCase(getPostById.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchPostById.fulfilled, (state, action) => {
+      .addCase(getPostById.fulfilled, (state, action) => {
+
         state.selectedPost = action.payload;
         state.loading = false;
-    });
+      })
+      .addCase(reactToPost.fulfilled, (state, action) => {
+        const updatedPost = action.payload;
+
+        // Обновляем selectedPost
+        if (state.selectedPost?._id === updatedPost.data._id) {
+          state.selectedPost = updatedPost.data;
+        }
+
+        // Обновляем пост в списке
+        state.posts = state.posts.map((post) => 
+          post._id === updatedPost.data._id ? updatedPost.data : post
+        );
+      });
   }
 });
 

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addPost, fetchMeta, fetchPosts, updatePost, deletePostById } from '../../app/redux/slices/postSlice';
+import { addPost, getMeta, getAllPosts, updatePost, deletePostById } from '../../app/redux/slices/postSlice';
 
 export const Admin = () => {
   const dispatch = useDispatch();
@@ -20,8 +20,8 @@ export const Admin = () => {
 
 
   useEffect(() => {
-    dispatch(fetchMeta());
-    dispatch(fetchPosts());
+    dispatch(getMeta());
+    dispatch(getAllPosts());
   }, [dispatch]);
 
   const handleEditorChange = (content, editor) => {

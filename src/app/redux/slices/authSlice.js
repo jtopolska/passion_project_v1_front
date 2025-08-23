@@ -22,7 +22,9 @@ const authSlice = createSlice({
   extraReducers: builder => {
     builder.addCase(loginAdmin.fulfilled, (state, action) => {
       state.token = action.payload;
+      console.log('state.token', state.token)
       state.isAuthenticated = true;
+      console.log(' state.isAuthenticated',  state.isAuthenticated)
       localStorage.setItem('token', action.payload);
     });
   }

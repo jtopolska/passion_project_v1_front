@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  fetchCommentsByPost,
+  getCommentsByPost,
   createComment,
   deleteComment,
   updateComment
@@ -17,7 +17,7 @@ export const Comments = ({ postId }) => {
   const [editPassword, setEditPassword] = useState('');
 
   useEffect(() => {
-    dispatch(fetchCommentsByPost(postId));
+    dispatch(getCommentsByPost(postId));
   }, [dispatch, postId]);
 
   const handleSubmit = () => {
@@ -65,9 +65,9 @@ export const Comments = ({ postId }) => {
       )}
 
       <h4>Оставить комментарий</h4>
-      <input placeholder="Имя" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+      <input placeholder="Nickname" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
       <input placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
-      <input placeholder="Пароль" type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+      <input placeholder="Придумайте ароль" type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
       <textarea placeholder="Комментарий" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} />
       <button onClick={handleSubmit}>Отправить</button>
     </div>

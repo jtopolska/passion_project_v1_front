@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPosts } from '../../app/redux/slices/postSlice';
+import { getAllPosts } from '../../app/redux/slices/postSlice';
 
 export const Home = () => {
     const dispatch = useDispatch();
-    const posts = useSelector(state => state.meta.posts);
+    const posts = useSelector(state => state.post.posts);
     console.log('posts', posts)
     console.log('posts[0]', posts[0])
 
 
     useEffect(() => {
-        dispatch(fetchPosts());
+        dispatch(getAllPosts());
       }, [dispatch]);
 
 
